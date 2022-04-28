@@ -30,6 +30,7 @@
     "ecoweb3": "^1.2.2",
     "hdnode-js": "^1.1.0",
     "joi": "^17.6.0",
+    "moralis": "^1.5.11",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.5",
