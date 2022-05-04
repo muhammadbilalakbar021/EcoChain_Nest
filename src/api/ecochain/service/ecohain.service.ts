@@ -1,3 +1,4 @@
+import { MoralisHelper } from './../../moralis/helpers/moralis.helper';
 import { Injectable } from '@nestjs/common';
 const { Ecocw3, Ecocjs } = require('ecoweb3');
 const bip39 = require('bip39');
@@ -19,11 +20,12 @@ console.log('network = ', network);
 
 @Injectable()
 export class EcohainService {
-  constructor() {}
+  constructor(private readonly moralisHelper: MoralisHelper) {}
 
-  async generateEthWallet(mnemonic = this.mnemonic()) {
+  async generateEthWallet(mnemonic) {
     try {
       const wallet = await this.createECDSA('ETH', mnemonic);
+      await this.moralisHelper.watchEthAddress(wallet.address);
 
       return {
         mnemonic: mnemonic,
@@ -36,7 +38,7 @@ export class EcohainService {
     }
   }
 
-  get mnemonic() {
+  mnemonic() {
     return bip39.generateMnemonic();
   }
 
