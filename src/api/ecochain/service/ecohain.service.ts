@@ -1,5 +1,4 @@
-import { MoralisHelper } from './../../moralis/helpers/moralis.helper';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 const { Ecocw3, Ecocjs } = require('ecoweb3');
 const bip39 = require('bip39');
 import * as bitcoin from 'bitcoinjs-lib';
@@ -12,6 +11,15 @@ import { createHash } from 'crypto';
 import * as bs58check from 'bs58check';
 import * as wif from 'wif';
 import { Address } from 'ethereumjs-util';
+import Web3 from 'web3';
+import { ConfigService } from '../../config/config.service';
+import { SendEthInterface } from '../interfaces/send-eth.interface';
+import Common from '@ethereumjs/common'; //NEW ADDITION
+import { Transaction as EthereumTx } from '@ethereumjs/tx';
+import { SendErc20Interface } from '../../ecochain/interfaces/send-erc20.interface';
+import erc20Abi from '../../ecochain/abis/erc20.abi';
+import axios from 'axios';
+import { TransactionResponse } from '../../utils/misc/enums';
 
 const unit = 'ECO';
 let network = Ecocjs.networks.ecoc_testnet;
@@ -20,12 +28,15 @@ console.log('network = ', network);
 
 @Injectable()
 export class EcohainService {
-  constructor(private readonly moralisHelper: MoralisHelper) {}
+  constructor(
+    @Inject('EcoWeb3')
+    private readonly ecoWeb3: Web3,
+    private readonly conifg: ConfigService,
+  ) { }
 
   async generateEthWallet(mnemonic) {
     try {
       const wallet = await this.createECDSA('ETH', mnemonic);
-      await this.moralisHelper.watchEthAddress(wallet.address);
 
       return {
         mnemonic: mnemonic,
@@ -134,5 +145,95 @@ export class EcohainService {
   btcLikeAddressVersion(symbol: any) {
     const coin = coininfo(symbol);
     return coin.versions.public;
+  }
+
+  //////////////////// Web3 Functions here ////////////////////////
+
+  async getTxConfirmations(blockNumber: number, blockchain: string) {
+    if (blockchain === 'ecochain') {
+      const currentBlock = await this.ecoWeb3.eth.getBlockNumber();
+      return currentBlock - blockNumber;
+    } else {
+      return 'web3 does not support this blockchain';
+    }
+  }
+
+  async getEcoBalance(walletAddress: string) {
+    const balance = await this.ecoWeb3.eth.getBalance(walletAddress);
+    return String(balance);
+  }
+
+  async getNetworkFee() {
+    try {
+      const gasPrice = await axios.get(
+        'https://ethgasstation.info/api/ethgasAPI.json?',
+      );
+      return {
+        networkFeeAvg: gasPrice.data.average,
+        networkFeeMax: gasPrice.data.fastest,
+        networkFeeMin: gasPrice.data.safeLow,
+      };
+    } catch (error) {
+      console.log('Error in getting fee');
+    }
+  }
+
+  async sendEthTrx(trxDetail: SendEthInterface) {
+    console.log(trxDetail);
+    try {
+      const nonce = await this.ecoWeb3.eth.getTransactionCount(
+        trxDetail.from,
+        'latest',
+      );
+      let gasPriceInWei = Number(await this.ecoWeb3.eth.getGasPrice());
+      let gasPriceFiat = this.ecoWeb3.utils.fromWei(gasPriceInWei.toString());
+      const gasPrice = await axios.get(
+        'https://ethgasstation.info/api/ethgasAPI.json?',
+      );
+      console.log('Eth gas Station', gasPrice.data.average);
+
+      /* create tx payload */
+      console.log('create tx payload');
+      const trx = {
+        to: trxDetail.to,
+        value: this.ecoWeb3.utils.toHex(
+          this.ecoWeb3.utils.toWei(trxDetail.value?.toString(), 'ether'),
+        ),
+        gasLimit: 21000,
+        gasPrice: gasPrice.data.average * 1000000000,
+        nonce: nonce,
+        chainId: this.conifg.ETH_CHAIN_ID,
+      };
+      console.log('trx', trx);
+      const common = new Common({ chain: this.conifg.ETH_CHAIN });
+      /* sign tx */
+      const transaction = EthereumTx.fromTxData(trx, {
+        common,
+      });
+      const signedTx = transaction.sign(
+        Buffer.from(trxDetail.privateKey, 'hex'),
+      );
+      /* send tx */
+      const serializedTransaction = signedTx.serialize();
+      const submittedTx = await this.ecoWeb3.eth.sendSignedTransaction(
+        '0x' + serializedTransaction.toString('hex'),
+      );
+
+      console.log('tx ', submittedTx);
+
+      console.log('Transaction Completed');
+      const filter = { withdrawMemo: trxDetail.memo, kind: 'withdraw' };
+      const updation = { externalTransactionId: submittedTx.transactionHash };
+      console.log('filter', filter);
+      console.log('updation', updation);
+      if (submittedTx?.transactionHash) {
+        return TransactionResponse.SUCCESS;
+      } else {
+        return TransactionResponse.ERROR;
+      }
+    } catch (error) {
+      console.log(error);
+      return TransactionResponse.ERROR;
+    }
   }
 }

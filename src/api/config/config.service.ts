@@ -28,9 +28,6 @@ export class ConfigService {
         )
         .default('development'),
       PORT: Joi.number().optional(),
-      MORALIS_APP_ID: Joi.string().optional(),
-      MORALIS_SERVER_URL: Joi.string().optional(),
-      MORALIS_MASTER_KEY: Joi.string().optional(),
       ETH_RPC_URL: Joi.string().optional(),
       ETH_EXPLORER: Joi.string().optional(),
       ETH_CHAIN: Joi.string().optional(),
@@ -64,18 +61,6 @@ export class ConfigService {
 
   get port(): string {
     return this.envConfig.PORT;
-  }
-
-  get MORALIS_APP_ID(): string {
-    return this.envConfig.MORALIS_APP_ID;
-  }
-
-  get MORALIS_SERVER_URL(): string {
-    return this.envConfig.MORALIS_SERVER_URL;
-  }
-
-  get MORALIS_MASTER_KEY(): string {
-    return this.envConfig.MORALIS_MASTER_KEY;
   }
 
   get ETH_RPC_URL(): string {

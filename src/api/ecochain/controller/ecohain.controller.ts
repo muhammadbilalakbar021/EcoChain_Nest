@@ -1,22 +1,20 @@
 import { EcohainService } from './../service/ecohain.service';
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
-import { ResponseService } from 'src/api/utils/response/response.service';
+import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 
 @Controller('ecohain')
 export class EcohainController {
   constructor(
-    private readonly responseService: ResponseService,
     private ecoService: EcohainService,
-  ) {}
+  ) { }
 
   @Post('wallet')
   async getEcoAddress(@Body() req: any, @Res() res: Response) {
     try {
       const address = await this.ecoService.generateEthWallet(req.mnemonic);
-      this.responseService.successResponse(true, address, res);
+      return res.status(HttpStatus.OK).json(address);
     } catch (err) {
-      return this.responseService.serverFailureResponse(err.message, res);
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({ Error: err.message });
     }
   }
 
@@ -24,9 +22,9 @@ export class EcohainController {
   async getEcoMnemonic(@Body() req: any, @Res() res: Response) {
     try {
       const address = await this.ecoService.mnemonic();
-      this.responseService.successResponse(true, address, res);
+      return res.status(HttpStatus.OK).json(address);
     } catch (err) {
-      return this.responseService.serverFailureResponse(err.message, res);
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({ Error: err.message });
     }
   }
 }
