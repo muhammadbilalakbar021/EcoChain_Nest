@@ -42,6 +42,7 @@ export class ConfigService {
       DOMAIN_NAME: Joi.string().optional(),
       TRON_GRID_TEST_NET: Joi.string().optional(),
       TRON_GRID: Joi.string().optional(),
+      Eco_Chain_Api_Url: Joi.string().optional(),
     });
 
     const { error, value: validatedEnvConfig } = envVarSchema.validate(
@@ -68,6 +69,10 @@ export class ConfigService {
 
   get MORALIS_APP_ID(): string {
     return this.envConfig.MORALIS_APP_ID;
+  }
+
+  get Eco_Chain_Api_Url(): string {
+    return this.envConfig.Eco_Chain_Api_Url;
   }
 
   get MORALIS_SERVER_URL(): string {

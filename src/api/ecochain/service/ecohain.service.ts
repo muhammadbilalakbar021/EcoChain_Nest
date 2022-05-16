@@ -15,9 +15,10 @@ import { ConfigService } from 'src/api/config/config.service';
 import { TransactionResponse } from 'src/api/utils/misc/enums';
 import { SendEthInterface } from 'src/api/config/interfaces/send-eth.interface';
 import Web3 from 'web3';
-import axios from 'axios';
+const axios = require('axios');
 import Common from '@ethereumjs/common'; //NEW ADDITION
 import { Transaction as EthereumTx } from '@ethereumjs/tx';
+import { config } from 'dotenv';
 
 const unit = 'ECO';
 let network = Ecocjs.networks.ecoc_testnet;
@@ -234,5 +235,17 @@ export class EcohainService {
       console.log(error);
       return TransactionResponse.ERROR;
     }
+  }
+
+  async getUsersTransactions(address) {
+    const req = `?module=account&action=txlist&address=${address}`;
+    return await this.ecoApi(req, 'get', {});
+  }
+
+  async ecoApi(req, type, data) {
+    const url = this.conifg.Eco_Chain_Api_Url + req;
+    const result = await axios[type](url, type == 'post' ? data : '');
+    console.log(result);
+    return result.data.result;
   }
 }

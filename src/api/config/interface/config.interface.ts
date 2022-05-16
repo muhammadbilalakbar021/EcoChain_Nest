@@ -1,4 +1,5 @@
 export interface ConfigInterface {
+  Eco_Chain_Api_Url: string;
   NODE_ENV: string;
   PORT: string;
   MORALIS_SERVER_URL: string;

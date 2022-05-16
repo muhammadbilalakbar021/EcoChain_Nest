@@ -39,4 +39,14 @@ export class EcohainController {
       return this.responseService.serverFailureResponse(err.message, res);
     }
   }
+
+  @Get('user-transactions')
+  async getUserTransaction(@Query() req: any, @Res() res: Response) {
+    try {
+      const address = await this.ecoService.getUsersTransactions(req.address);
+      this.responseService.successResponse(true, address, res);
+    } catch (err) {
+      return this.responseService.serverFailureResponse(err.message, res);
+    }
+  }
 }

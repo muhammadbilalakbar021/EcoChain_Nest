@@ -15,9 +15,7 @@ const Web3 = require('web3');
     {
       provide: 'EcoWeb3',
       useFactory: (config: ConfigService) => {
-        return new Web3(
-          new Web3.providers.HttpProvider('https://rpc.ecochain.network'),
-        );
+        return new Web3('wss://rpc.ecochain.network');
       },
       inject: [ConfigService],
     },
