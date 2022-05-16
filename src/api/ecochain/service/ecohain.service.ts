@@ -39,6 +39,7 @@ export class EcohainService {
       return {
         mnemonic: mnemonic,
         publicKey: wallet.public_key,
+        private_key: wallet.private_key,
         address: wallet.address,
         coinSymbol: 'ECO',
       };
