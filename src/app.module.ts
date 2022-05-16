@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EcochainModule } from './api/ecochain/ecochain.module';
-import { Web3Module } from './api/web3/web3.module';
 
 @Module({
-  imports: [EcochainModule, Web3Module],
+  imports: [EcochainModule],
   controllers: [AppController],
   providers: [AppService],
 })
