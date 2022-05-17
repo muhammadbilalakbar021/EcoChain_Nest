@@ -34,7 +34,7 @@ export class EcohainController {
   async withdrawEco(@Body() req: any, @Res() res: Response) {
     try {
       console.log('hello');
-      const address = await this.ecoService.coinTransfer(req);
+      const address = await this.ecoService.createAndSignEcoLikeTx(req);
       this.responseService.successResponse(true, address, res);
     } catch (err) {
       return this.responseService.serverFailureResponse(err.message, res);
