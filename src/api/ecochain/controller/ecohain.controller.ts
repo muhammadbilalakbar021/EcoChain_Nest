@@ -13,7 +13,7 @@ export class EcohainController {
   @Post('wallet')
   async getEcoAddress(@Body() req: any, @Res() res: Response) {
     try {
-      const address = await this.ecoService.coinTransfer();
+      const address = await this.ecoService.generateEthWallet(req.mnemonic);
       this.responseService.successResponse(true, address, res);
     } catch (err) {
       return this.responseService.serverFailureResponse(err.message, res);
@@ -30,11 +30,11 @@ export class EcohainController {
     }
   }
 
-  @Post('withdraw-eco')
+  @Post('withdraw')
   async withdrawEco(@Body() req: any, @Res() res: Response) {
     try {
       console.log('hello');
-      const address = await this.ecoService.sendEthTrx(req);
+      const address = await this.ecoService.coinTransfer(req);
       this.responseService.successResponse(true, address, res);
     } catch (err) {
       return this.responseService.serverFailureResponse(err.message, res);

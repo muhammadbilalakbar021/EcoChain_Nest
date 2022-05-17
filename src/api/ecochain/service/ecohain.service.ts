@@ -334,14 +334,13 @@ export class EcohainService {
     return this.transactions;
   }
 
-  async coinTransfer() {
+  async coinTransfer(body) {
     try {
       const trxDetail = {
-        to: '0xD181fBE2dbE36396155dAC25d4b6B544970Ae476',
-        from: '0x959FD7Ef9089B7142B6B908Dc3A8af7Aa8ff0FA1',
-        value: 1,
-        privateKey:
-          'abf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe',
+        to: body.to,
+        from: body.from,
+        value: body.value,
+        privateKey: body.privateKey,
         memo: 'asfasfasdklfslfd;kl',
       };
       var privateKey = trxDetail.privateKey;
