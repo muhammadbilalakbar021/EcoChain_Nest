@@ -37,8 +37,16 @@ export class EcohainService {
       address: '0x959fd7ef9089b7142b6b908dc3a8af7aa8ff0fa1',
       balance: 0,
       transactions: [],
+      constract: [
+        {
+          address: '0x1C8B751aC3809de3abc5BdBCAdF92a619C4626CF',
+          balance: 0,
+          txHashes: new Set(),
+        },
+      ],
     },
   ];
+
   constructor(
     @Inject('EcoWeb3')
     private readonly ecoWeb3: Web3,
@@ -267,7 +275,12 @@ export class EcohainService {
     return result;
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  async getTokenTxsOnUser(address) {
+    const req = `?module=account&action=tokentx&address=${address}`;
+    return await this.ecoApi(req, 'get', {});
+  }
+
+  // @Cron(CronExpression.EVERY_10_SECONDS)
   async updateUserBalance() {
     const b = await this.getMultipleBalances();
     if (b == 0) return;
