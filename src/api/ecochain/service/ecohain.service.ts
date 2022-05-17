@@ -219,6 +219,7 @@ export class EcohainService {
       /* create tx payload */
       console.log('create tx payload');
       const trx = {
+        from: trxDetail.from,
         to: trxDetail.to,
         value: this.ecoWeb3.utils.toHex(
           this.ecoWeb3.utils.toWei(trxDetail.value?.toString(), 'ether'),
@@ -231,12 +232,13 @@ export class EcohainService {
       console.log('trx', trx);
       const common = new Common({ chain: this.conifg.ETH_CHAIN });
       /* sign tx */
-      const transaction = EthereumTx.fromTxData(trx, {
-        common,
-      });
+      const transaction = new EthereumTx.fromTxData(trx);
+      console.log('transaction', transaction);
       const signedTx = transaction.sign(
         Buffer.from(trxDetail.privateKey, 'hex'),
       );
+      console.log('signedTx', signedTx);
+
       /* send tx */
       const serializedTransaction = signedTx.serialize();
       const submittedTx = await this.ecoWeb3.eth.sendSignedTransaction(

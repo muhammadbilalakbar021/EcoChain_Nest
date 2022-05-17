@@ -11,7 +11,7 @@ export class PendingDepositService {
     console.log('hello from ');
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  // @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCron() {
     this.logger.debug('CronJob for Pending Deposit for Eco');
     let addresses = this.ecohainService.arr;
@@ -27,7 +27,7 @@ export class PendingDepositService {
     }, Promise.resolve());
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  // @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCronForTokens() {
     this.logger.debug('CronJob for Token Balances');
     let addresses = this.ecohainService.arr;

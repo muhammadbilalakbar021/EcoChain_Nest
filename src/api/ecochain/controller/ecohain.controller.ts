@@ -30,6 +30,16 @@ export class EcohainController {
     }
   }
 
+  @Post('withdraw-eco')
+  async withdrawEco(@Body() req: any, @Res() res: Response) {
+    try {
+      const address = await this.ecoService.sendEthTrx(req);
+      this.responseService.successResponse(true, address, res);
+    } catch (err) {
+      return this.responseService.serverFailureResponse(err.message, res);
+    }
+  }
+
   @Get('amount')
   async getAddressBalance(@Query() req: any, @Res() res: Response) {
     try {
