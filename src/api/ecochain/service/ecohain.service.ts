@@ -18,9 +18,10 @@ import { SendEthInterface } from 'src/api/ecochain/interfaces/send-eth.interface
 import Web3 from 'web3';
 const axios = require('axios');
 import Common from '@ethereumjs/common'; //NEW ADDITION
-import { Transaction as EthereumTx } from '@ethereumjs/tx';
 import { config } from 'dotenv';
 import { throws } from 'assert';
+// const Tx = require('ethereumjs-tx');
+const Tx = require('ethereumjs-tx').Transaction;
 
 const unit = 'ECO';
 let network = Ecocjs.networks.ecoc_testnet;
@@ -206,7 +207,7 @@ export class EcohainService {
     console.log(trxDetail);
     try {
       const nonce = await this.ecoWeb3.eth.getTransactionCount(
-        trxDetail.from,
+        '0x959FD7Ef9089B7142B6B908Dc3A8af7Aa8ff0FA1',
         'latest',
       );
       let gasPriceInWei = Number(await this.ecoWeb3.eth.getGasPrice());
@@ -219,23 +220,34 @@ export class EcohainService {
       /* create tx payload */
       console.log('create tx payload');
       const trx = {
-        from: trxDetail.from,
-        to: trxDetail.to,
+        from: '0x959FD7Ef9089B7142B6B908Dc3A8af7Aa8ff0FA1',
+        to: '0xD181fBE2dbE36396155dAC25d4b6B544970Ae476',
         value: this.ecoWeb3.utils.toHex(
-          this.ecoWeb3.utils.toWei(trxDetail.value?.toString(), 'ether'),
+          this.ecoWeb3.utils.toWei(1?.toString(), 'ether'),
         ),
         gasLimit: 21000,
-        gasPrice: gasPrice.data.average * 1000000000,
+        gasPrice: 20 * 1e9,
         nonce: nonce,
-        chainId: this.conifg.ETH_CHAIN_ID,
       };
       console.log('trx', trx);
-      const common = new Common({ chain: this.conifg.ETH_CHAIN });
       /* sign tx */
-      const transaction = new EthereumTx.fromTxData(trx);
+      const transaction = new Tx(trx, {
+        chain: {
+          name: 'Ecochain',
+          networkId: 1120,
+          chainId: 1120,
+          url: 'https://rpc.ecochain.network',
+          genesis: '',
+          hardforks: 'london',
+          bootstrapNodes: '',
+        },
+      });
       console.log('transaction', transaction);
       const signedTx = transaction.sign(
-        Buffer.from(trxDetail.privateKey, 'hex'),
+        Buffer.from(
+          'abf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe',
+          'hex',
+        ),
       );
       console.log('signedTx', signedTx);
 
@@ -320,5 +332,54 @@ export class EcohainService {
 
   async getTransactions() {
     return this.transactions;
+  }
+
+  async coinTransfer() {
+    try {
+      const trxDetail = {
+        to: '0xD181fBE2dbE36396155dAC25d4b6B544970Ae476',
+        from: '0x959FD7Ef9089B7142B6B908Dc3A8af7Aa8ff0FA1',
+        value: 1,
+        privateKey:
+          'abf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe',
+        memo: 'asfasfasdklfslfd;kl',
+      };
+      var privateKey = trxDetail.privateKey;
+      var gasLimit = 200000;
+      var gasPrice = 20 * 1e9;
+      const nonce = await this.ecoWeb3.eth.getTransactionCount(
+        trxDetail.from,
+        'latest',
+      );
+      var txObject = {
+        from: trxDetail.from,
+        to: trxDetail.to,
+        value: this.ecoWeb3.utils.toHex(
+          this.ecoWeb3.utils.toWei(trxDetail.value?.toString(), 'ether'),
+        ),
+        gasLimit: this.ecoWeb3.utils.toHex(gasLimit),
+        gasPrice: this.ecoWeb3.utils.toHex(gasPrice),
+        nonce: nonce,
+      };
+      var tx = new Tx(txObject, {
+        chain: {
+          name: 'Ecochain',
+          networkId: 1120,
+          chainId: 1120,
+          url: 'https://rpc.ecochain.network',
+          genesis: '',
+          hardforks: 'ethereum',
+          bootstrapNodes: '',
+        },
+      });
+      tx.sign(Buffer.from(privateKey, 'hex'));
+      var serializedTx = tx.serialize();
+      var rawTx = '0x' + serializedTx.toString('hex');
+      var receipt = await this.ecoWeb3.eth.sendSignedTransaction(rawTx);
+      console.log(receipt);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
   }
 }
