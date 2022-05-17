@@ -61,6 +61,16 @@ export class EcohainController {
     }
   }
 
+  @Post('send-token')
+  async sendToken(@Body() req: any, @Res() res: Response) {
+    try {
+      const address = await this.ecoService.sendEco20Trx(req);
+      this.responseService.successResponse(true, address, res);
+    } catch (err) {
+      return this.responseService.serverFailureResponse(err.message, res);
+    }
+  }
+
   @Get('all-transactions')
   async getAllTransactions(@Query() req: any, @Res() res: Response) {
     try {

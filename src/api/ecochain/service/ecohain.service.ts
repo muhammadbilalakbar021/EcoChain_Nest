@@ -18,8 +18,9 @@ import { SendEthInterface } from 'src/api/ecochain/interfaces/send-eth.interface
 import Web3 from 'web3';
 const axios = require('axios');
 import Common from '@ethereumjs/common'; //NEW ADDITION
-import { config } from 'dotenv';
 import { throws } from 'assert';
+import erc20Abi from '../abis/erc20.abi';
+import { SendErc20Interface } from '../interfaces/send-erc20.interface';
 // const Tx = require('ethereumjs-tx');
 const Tx = require('ethereumjs-tx').Transaction;
 
@@ -269,6 +270,65 @@ export class EcohainService {
       } else {
         return TransactionResponse.ERROR;
       }
+    } catch (error) {
+      console.log(error);
+      return TransactionResponse.ERROR;
+    }
+  }
+
+  async sendEco20Trx(trxDetail: SendErc20Interface) {
+    console.log(trxDetail);
+    try {
+      const nonce = await this.ecoWeb3.eth.getTransactionCount(
+        trxDetail.from,
+        'latest',
+      );
+      let gasPriceInWei = Number(await this.ecoWeb3.eth.getGasPrice());
+      let gasPriceFiat = this.ecoWeb3.utils.fromWei(gasPriceInWei.toString());
+      let contract = new this.ecoWeb3.eth.Contract(
+        erc20Abi,
+        trxDetail.contractAddress,
+      );
+      let data = contract.methods.transfer(
+        trxDetail.to,
+        (+trxDetail.value * 1e18).toString(),
+      );
+      console.log((+trxDetail.value * 1e18).toString());
+
+      const gasLimit = 210000;
+
+      var gasPrice = 300 * 1e9;
+      console.log('sdasdfsdgddfgdfgdfgdfgg');
+      /* create tx payload */
+
+      const trx = {
+        from: trxDetail.from,
+        to: trxDetail.contractAddress,
+        data: data.encodeABI(),
+        gasLimit: gasLimit,
+        gasPrice: gasPrice,
+        nonce: nonce,
+      };
+      console.log('trx', trx);
+      /* sign tx */
+
+      var tx = new Tx(trx, {
+        chain: {
+          name: 'Ecochain',
+          networkId: 1120,
+          chainId: 1120,
+          url: 'https://rpc.ecochain.network',
+          genesis: '',
+          hardforks: 'ethereum',
+          bootstrapNodes: '',
+        },
+      });
+      tx.sign(Buffer.from(trxDetail.privateKey, 'hex'));
+      var serializedTx = tx.serialize();
+      var rawTx = '0x' + serializedTx.toString('hex');
+      var receipt = await this.ecoWeb3.eth.sendSignedTransaction(rawTx);
+      console.log('tx ', receipt);
+      return receipt;
     } catch (error) {
       console.log(error);
       return TransactionResponse.ERROR;
