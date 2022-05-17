@@ -49,4 +49,23 @@ export class EcohainController {
       return this.responseService.serverFailureResponse(err.message, res);
     }
   }
+
+  @Get('all-transactions')
+  async getAllTransactions(@Query() req: any, @Res() res: Response) {
+    try {
+      const txs = await this.ecoService.getTransactions();
+      this.responseService.successResponse(true, txs, res);
+    } catch (err) {
+      return this.responseService.serverFailureResponse(err.message, res);
+    }
+  }
+  @Get('all-balances')
+  async getAllBalances(@Query() req: any, @Res() res: Response) {
+    try {
+      const txs = await this.ecoService.accountBalances();
+      this.responseService.successResponse(true, txs, res);
+    } catch (err) {
+      return this.responseService.serverFailureResponse(err.message, res);
+    }
+  }
 }

@@ -25,6 +25,7 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/schedule": "^1.1.0",
     "bip32": "^3.0.1",
     "class-validator": "^0.13.2",
     "dotenv": "^16.0.0",

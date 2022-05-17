@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 const { Ecocw3, Ecocjs } = require('ecoweb3');
 const bip39 = require('bip39');
 import * as bitcoin from 'bitcoinjs-lib';
@@ -19,6 +20,7 @@ const axios = require('axios');
 import Common from '@ethereumjs/common'; //NEW ADDITION
 import { Transaction as EthereumTx } from '@ethereumjs/tx';
 import { config } from 'dotenv';
+import { throws } from 'assert';
 
 const unit = 'ECO';
 let network = Ecocjs.networks.ecoc_testnet;
@@ -27,6 +29,9 @@ console.log('network = ', network);
 
 @Injectable()
 export class EcohainService {
+  balance = 0;
+  account_balances = {};
+  transactions = [];
   constructor(
     @Inject('EcoWeb3')
     private readonly ecoWeb3: Web3,
@@ -36,7 +41,8 @@ export class EcohainService {
   async generateEthWallet(mnemonic) {
     try {
       const wallet = await this.createECDSA('ETH', mnemonic);
-
+      console.log(wallet);
+      this.account_balances[wallet.address] = 0;
       return {
         mnemonic: mnemonic,
         publicKey: wallet.public_key,
@@ -159,7 +165,6 @@ export class EcohainService {
 
   async getEcoBalance(walletAddress: string) {
     const balance: any = await this.ecoWeb3.eth.getBalance(walletAddress);
-    console.log(balance);
     return String(Number(balance) / Math.pow(10, 18));
   }
 
@@ -242,10 +247,52 @@ export class EcohainService {
     return await this.ecoApi(req, 'get', {});
   }
 
+  async getMultipleBalances() {
+    if (Object.keys(this.account_balances).length == 0) return 0;
+    const req = `?module=account&action=balancemulti&address=${Object.keys(
+      this.account_balances,
+    ).join(',')}`;
+    const result = await this.ecoApi(req, 'get', {});
+    return result;
+  }
+
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async updateUserBalance() {
+    const b = await this.getMultipleBalances();
+    if (b == 0) return;
+    await b.reduce((prom, e) => {
+      if (this.account_balances[e.account] == e.balance) return;
+      else
+        this.getUsersTransactions(e.account).then((x) => {
+          x.forEach((E) => {
+            var { from, to, value } = E;
+            value = value / 1e18;
+            console.log(
+              'tx',
+              this.transactions[E.hash],
+              this.transactions[E.hash] == undefined,
+              E.hash,
+            );
+            if (this.transactions[E.hash] == undefined)
+              this.transactions[E.hash] = { from, to, value };
+            console.log(this.transactions[E.hash]);
+          });
+          this.account_balances[e.account] = e.balance;
+        });
+    }, Promise.resolve(0));
+  }
+
   async ecoApi(req, type, data) {
     const url = this.conifg.Eco_Chain_Api_Url + req;
     const result = await axios[type](url, type == 'post' ? data : '');
-    console.log(result);
     return result.data.result;
+  }
+
+  async accountBalances() {
+    return this.account_balances;
+  }
+
+  async getTransactions() {
+    return this.transactions;
   }
 }
