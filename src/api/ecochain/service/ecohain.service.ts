@@ -381,4 +381,41 @@ export class EcohainService {
       return;
     }
   }
+
+  async createAndSignEcoLikeTx(body) {
+    let pvt_key = body.privateKey;
+    let txPayload = {
+      from: body.from,
+      to: body.to,
+      amount: body.value,
+      private_key: pvt_key,
+    };
+    try {
+      const nonce = await this.ecoWeb3.eth.getTransactionCount(txPayload.from);
+      console.log(nonce);
+      /* create tx payload */
+      const trx = {
+        to: txPayload.to,
+        value: this.ecoWeb3.utils.toHex(
+          this.ecoWeb3.utils.toWei(txPayload.amount?.toString(), 'ether'),
+        ),
+        gasLimit: 200000,
+        gasPrice: 20 * 1e9,
+        nonce: nonce,
+        chainId: 1120, // EIP 155 chainId - mainnet: 1, rinkeby: 4
+      };
+
+      const transaction = await this.ecoWeb3.eth.accounts.signTransaction(
+        trx,
+        txPayload.private_key,
+      );
+      const signedTx = await this.ecoWeb3.eth.sendSignedTransaction(
+        transaction.rawTransaction,
+      );
+      console.log(signedTx);
+      return signedTx?.transactionHash;
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  }
 }
