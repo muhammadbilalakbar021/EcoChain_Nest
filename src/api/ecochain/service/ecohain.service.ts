@@ -13,7 +13,7 @@ import * as wif from 'wif';
 import { Address } from 'ethereumjs-util';
 import { ConfigService } from 'src/api/config/config.service';
 import { TransactionResponse } from 'src/api/utils/misc/enums';
-import { SendEthInterface } from 'src/api/config/interfaces/send-eth.interface';
+import { SendEthInterface } from 'src/api/ecochain/interfaces/send-eth.interface';
 import Web3 from 'web3';
 const axios = require('axios');
 import Common from '@ethereumjs/common'; //NEW ADDITION
@@ -27,11 +27,22 @@ console.log('network = ', network);
 
 @Injectable()
 export class EcohainService {
+  arr = [
+    {
+      address: '0x959fd7ef9089b7142b6b908dc3a8af7aa8ff0fa1',
+      balance: 0,
+      transactions: [],
+    },
+  ];
   constructor(
     @Inject('EcoWeb3')
     private readonly ecoWeb3: Web3,
     private readonly conifg: ConfigService,
   ) {}
+
+  get addresses() {
+    return this.arr;
+  }
 
   async generateEthWallet(mnemonic) {
     try {
@@ -245,7 +256,6 @@ export class EcohainService {
   async ecoApi(req, type, data) {
     const url = this.conifg.Eco_Chain_Api_Url + req;
     const result = await axios[type](url, type == 'post' ? data : '');
-    console.log(result);
     return result.data.result;
   }
 }
