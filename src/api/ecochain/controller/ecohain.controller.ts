@@ -71,6 +71,16 @@ export class EcohainController {
     }
   }
 
+  @Get('eco-price')
+  async ecoPrice(@Res() res: Response) {
+    try {
+      const address = await this.ecoService.getEcoCoinPrice();
+      this.responseService.successResponse(true, address, res);
+    } catch (err) {
+      return this.responseService.serverFailureResponse(err.message, res);
+    }
+  }
+
   @Get('all-transactions')
   async getAllTransactions(@Query() req: any, @Res() res: Response) {
     try {

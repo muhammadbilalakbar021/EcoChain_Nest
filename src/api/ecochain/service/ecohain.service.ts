@@ -281,6 +281,11 @@ export class EcohainService {
     return await this.ecoApi(req, 'get', {});
   }
 
+  async getEcoCoinPrice() {
+    const req = `?module=stats&action=coinprice`;
+    return await this.ecoApi(req, 'get', {});
+  }
+
   // @Cron(CronExpression.EVERY_10_SECONDS)
   async updateUserBalance() {
     const b = await this.getMultipleBalances();
