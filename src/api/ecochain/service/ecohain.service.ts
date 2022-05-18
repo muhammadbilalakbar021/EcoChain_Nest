@@ -204,78 +204,6 @@ export class EcohainService {
     }
   }
 
-  async sendEthTrx(trxDetail: SendEthInterface) {
-    console.log(trxDetail);
-    try {
-      const nonce = await this.ecoWeb3.eth.getTransactionCount(
-        '0x959FD7Ef9089B7142B6B908Dc3A8af7Aa8ff0FA1',
-        'latest',
-      );
-      let gasPriceInWei = Number(await this.ecoWeb3.eth.getGasPrice());
-      let gasPriceFiat = this.ecoWeb3.utils.fromWei(gasPriceInWei.toString());
-      const gasPrice = await axios.get(
-        'https://ethgasstation.info/api/ethgasAPI.json?',
-      );
-      console.log('Eth gas Station', gasPrice.data.average);
-
-      /* create tx payload */
-      console.log('create tx payload');
-      const trx = {
-        from: '0x959FD7Ef9089B7142B6B908Dc3A8af7Aa8ff0FA1',
-        to: '0xD181fBE2dbE36396155dAC25d4b6B544970Ae476',
-        value: this.ecoWeb3.utils.toHex(
-          this.ecoWeb3.utils.toWei(1?.toString(), 'ether'),
-        ),
-        gasLimit: 21000,
-        gasPrice: 20 * 1e9,
-        nonce: nonce,
-      };
-      console.log('trx', trx);
-      /* sign tx */
-      const transaction = new Tx(trx, {
-        chain: {
-          name: 'Ecochain',
-          networkId: 1120,
-          chainId: 1120,
-          url: 'https://rpc.ecochain.network',
-          genesis: '',
-          hardforks: 'london',
-          bootstrapNodes: '',
-        },
-      });
-      console.log('transaction', transaction);
-      const signedTx = transaction.sign(
-        Buffer.from(
-          'abf82ff96b463e9d82b83cb9bb450fe87e6166d4db6d7021d0c71d7e960d5abe',
-          'hex',
-        ),
-      );
-      console.log('signedTx', signedTx);
-
-      /* send tx */
-      const serializedTransaction = signedTx.serialize();
-      const submittedTx = await this.ecoWeb3.eth.sendSignedTransaction(
-        '0x' + serializedTransaction.toString('hex'),
-      );
-
-      console.log('tx ', submittedTx);
-
-      console.log('Transaction Completed');
-      const filter = { withdrawMemo: trxDetail.memo, kind: 'withdraw' };
-      const updation = { externalTransactionId: submittedTx.transactionHash };
-      console.log('filter', filter);
-      console.log('updation', updation);
-      if (submittedTx?.transactionHash) {
-        return TransactionResponse.SUCCESS;
-      } else {
-        return TransactionResponse.ERROR;
-      }
-    } catch (error) {
-      console.log(error);
-      return TransactionResponse.ERROR;
-    }
-  }
-
   async sendEco20Trx(trxDetail: SendErc20Interface) {
     console.log(trxDetail);
     try {
@@ -298,7 +226,6 @@ export class EcohainService {
       const gasLimit = 210000;
 
       var gasPrice = 300 * 1e9;
-      console.log('sdasdfsdgddfgdfgdfgdfgg');
       /* create tx payload */
 
       const trx = {
