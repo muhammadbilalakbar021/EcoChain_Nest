@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-const { Ecocw3, Ecocjs } = require('ecoweb3');
+const { Ecocjs } = require('ecoweb3');
 const bip39 = require('bip39');
-import * as bitcoin from 'bitcoinjs-lib';
-import * as bip32utils from 'bip32-utils';
-import * as hdnode from 'hdnode-js';
 import * as bip44Constants from 'bip44-constants';
 import * as coininfo from 'coininfo';
 import * as HDKey from 'hdkey';
@@ -16,8 +13,6 @@ import { ConfigService } from '../../config/config.service';
 import { SendEthInterface } from '../interfaces/send-eth.interface';
 import Common from '@ethereumjs/common'; //NEW ADDITION
 import { Transaction as EthereumTx } from '@ethereumjs/tx';
-import { SendErc20Interface } from '../../ecochain/interfaces/send-erc20.interface';
-import erc20Abi from '../../ecochain/abis/erc20.abi';
 import axios from 'axios';
 import { TransactionResponse } from '../../utils/misc/enums';
 
