@@ -211,8 +211,6 @@ export class EcohainService {
         'latest',
       );
       const contractAddress = this.conifg[trxDetail.coin + '_CONTRACT_ADDRESS'];
-      console.log(contractAddress);
-      return;
       let gasPriceInWei = Number(await this.ecoWeb3.eth.getGasPrice());
       let gasPriceFiat = this.ecoWeb3.utils.fromWei(gasPriceInWei.toString());
       let contract = new this.ecoWeb3.eth.Contract(erc20Abi, contractAddress);
