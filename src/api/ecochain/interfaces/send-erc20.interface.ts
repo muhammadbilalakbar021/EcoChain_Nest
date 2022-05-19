@@ -1,6 +1,6 @@
 export interface SendErc20Interface {
   to: string;
-  contractAddress: string;
+  coin: string;
   from: string;
   value: string;
   privateKey: string;

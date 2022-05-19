@@ -10,4 +10,9 @@ export interface ConfigInterface {
   ETH_EXPLORER: string;
   ETH_CHAIN: string;
   ETH_CHAIN_ID: string;
+  USDR_CONTRACT_ADDRESS: string;
+  ROTI_CONTRACT_ADDRESS: string;
+  DGC_CONTRACT_ADDRESS: string;
+  GCC_CONTRACT_ADDRESS: string;
+  BLC_CONTRACT_ADDRESS: string;
 }

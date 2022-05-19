@@ -205,18 +205,17 @@ export class EcohainService {
   }
 
   async sendEco20Trx(trxDetail: SendErc20Interface) {
-    console.log(trxDetail);
     try {
       const nonce = await this.ecoWeb3.eth.getTransactionCount(
         trxDetail.from,
         'latest',
       );
+      const contractAddress = this.conifg[trxDetail.coin + '_CONTRACT_ADDRESS'];
+      console.log(contractAddress);
+      return;
       let gasPriceInWei = Number(await this.ecoWeb3.eth.getGasPrice());
       let gasPriceFiat = this.ecoWeb3.utils.fromWei(gasPriceInWei.toString());
-      let contract = new this.ecoWeb3.eth.Contract(
-        erc20Abi,
-        trxDetail.contractAddress,
-      );
+      let contract = new this.ecoWeb3.eth.Contract(erc20Abi, contractAddress);
       let data = contract.methods.transfer(
         trxDetail.to,
         (+trxDetail.value * 1e18).toString(),
@@ -230,7 +229,7 @@ export class EcohainService {
 
       const trx = {
         from: trxDetail.from,
-        to: trxDetail.contractAddress,
+        to: contractAddress,
         data: data.encodeABI(),
         gasLimit: gasLimit,
         gasPrice: gasPrice,

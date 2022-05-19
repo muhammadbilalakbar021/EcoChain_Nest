@@ -95,7 +95,20 @@ export class ConfigService {
     return this.envConfig.ETH_CHAIN;
   }
 
-  get ETH_CHAIN_ID(): string {
-    return this.envConfig.ETH_CHAIN_ID;
+  get USDR_CONTRACT_ADDRESS(): string {
+    return this.envConfig.USDR_CONTRACT_ADDRESS;
+  }
+
+  get ROTI_CONTRACT_ADDRESS(): string {
+    return this.envConfig.ROTI_CONTRACT_ADDRESS;
+  }
+  get DGC_CONTRACT_ADDRESS(): string {
+    return this.envConfig.DGC_CONTRACT_ADDRESS;
+  }
+  get GCC_CONTRACT_ADDRESS(): string {
+    return this.envConfig.GCC_CONTRACT_ADDRESS;
+  }
+  get BLC_CONTRACT_ADDRESS(): string {
+    return this.envConfig.BLC_CONTRACT_ADDRESS;
   }
 }
